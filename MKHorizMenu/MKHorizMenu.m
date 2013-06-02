@@ -72,6 +72,8 @@
             [customButton setTitleColor:[dataSource labelColorForMenu:self] forState:UIControlStateNormal];
         if ([dataSource respondsToSelector:@selector(labelSelectedColorForMenu:)])
             [customButton setTitleColor:[dataSource labelSelectedColorForMenu:self] forState:UIControlStateSelected];
+        if ([dataSource respondsToSelector:@selector(labelHighlightedColorForMenu:)])
+            [customButton setTitleColor:[dataSource labelHighlightedColorForMenu:self] forState:UIControlStateHighlighted];
         
         [customButton setBackgroundImage:self.selectedImage forState:UIControlStateSelected];
         

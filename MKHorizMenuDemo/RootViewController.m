@@ -66,6 +66,11 @@
     return [UIColor whiteColor];
 }
 
+- (UIColor *)labelHighlightedColorForMenu:(MKHorizMenu *)tabMenu
+{
+    return [UIColor grayColor];
+}
+
 - (UIFont*) labelFontForMenu:(MKHorizMenu*) tabMenu
 {
     return [UIFont boldSystemFontOfSize:15];
