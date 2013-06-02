@@ -56,6 +56,16 @@
     return [[UIImage imageNamed:@"ButtonSelected"] stretchableImageWithLeftCapWidth:16 topCapHeight:0];
 }
 
+- (UIColor*) labelColorForMenu:(MKHorizMenu*) tabMenu
+{
+    return [UIColor colorWithWhite:0.70f alpha:1.0f];
+}
+
+- (UIColor*) labelSelectedColorForMenu:(MKHorizMenu*) tabMenu
+{
+    return [UIColor whiteColor];
+}
+
 - (UIColor*) backgroundColorForMenu:(MKHorizMenu *)tabView
 {
     return [UIColor colorWithPatternImage:[UIImage imageNamed:@"MenuBar"]];

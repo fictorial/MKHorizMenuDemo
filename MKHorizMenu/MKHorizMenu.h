@@ -23,6 +23,9 @@
 @class MKHorizMenu;
 
 @protocol MKHorizMenuDataSource <NSObject>
+@optional
+- (UIColor*) labelColorForMenu:(MKHorizMenu*) tabMenu;
+- (UIColor*) labelSelectedColorForMenu:(MKHorizMenu*) tabMenu;
 @required
 - (UIImage*) selectedItemImageForMenu:(MKHorizMenu*) tabView;
 - (UIColor*) backgroundColorForMenu:(MKHorizMenu*) tabView;

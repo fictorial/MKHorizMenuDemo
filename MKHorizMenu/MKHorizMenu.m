@@ -63,6 +63,10 @@
         UIButton *customButton = [UIButton buttonWithType:UIButtonTypeCustom];
         [customButton setTitle:title forState:UIControlStateNormal];
         customButton.titleLabel.font = buttonFont;
+        if ([dataSource respondsToSelector:@selector(labelColorForMenu:)])
+            [customButton setTitleColor:[dataSource labelColorForMenu:self] forState:UIControlStateNormal];
+        if ([dataSource respondsToSelector:@selector(labelSelectedColorForMenu:)])
+            [customButton setTitleColor:[dataSource labelSelectedColorForMenu:self] forState:UIControlStateSelected];
         
         [customButton setBackgroundImage:self.selectedImage forState:UIControlStateSelected];
         
