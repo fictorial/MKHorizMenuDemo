@@ -66,6 +66,11 @@
     return [UIColor whiteColor];
 }
 
+- (UIFont*) labelFontForMenu:(MKHorizMenu*) tabMenu
+{
+    return [UIFont boldSystemFontOfSize:15];
+}
+
 - (UIColor*) backgroundColorForMenu:(MKHorizMenu *)tabView
 {
     return [UIColor colorWithPatternImage:[UIImage imageNamed:@"MenuBar"]];
