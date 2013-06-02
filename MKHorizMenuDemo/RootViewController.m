@@ -71,6 +71,11 @@
     return [UIFont boldSystemFontOfSize:15];
 }
 
+- (int) itemPaddingForMenu:(MKHorizMenu*) tabMenu
+{
+    return 22;
+}
+
 - (UIColor*) backgroundColorForMenu:(MKHorizMenu *)tabView
 {
     return [UIColor colorWithPatternImage:[UIImage imageNamed:@"MenuBar"]];

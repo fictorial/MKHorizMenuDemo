@@ -54,8 +54,11 @@
     UIFont *buttonFont = [UIFont boldSystemFontOfSize:15];
     if ([dataSource respondsToSelector:@selector(labelFontForMenu:)])
         buttonFont = [dataSource labelFontForMenu:self];
-    int buttonPadding = 25;
     
+    int buttonPadding = 25;
+    if ([dataSource respondsToSelector:@selector(itemPaddingForMenu:)])
+        buttonPadding = [dataSource itemPaddingForMenu:self];
+
     int tag = kButtonBaseTag;    
     int xPos = kLeftOffset;
 

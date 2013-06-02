@@ -27,6 +27,7 @@
 - (UIColor*) labelColorForMenu:(MKHorizMenu*) tabMenu;
 - (UIColor*) labelSelectedColorForMenu:(MKHorizMenu*) tabMenu;
 - (UIFont*) labelFontForMenu:(MKHorizMenu*) tabMenu;
+- (int) itemPaddingForMenu:(MKHorizMenu*) tabMenu;
 @required
 - (UIImage*) selectedItemImageForMenu:(MKHorizMenu*) tabView;
 - (UIColor*) backgroundColorForMenu:(MKHorizMenu*) tabView;
