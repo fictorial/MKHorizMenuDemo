@@ -8,16 +8,12 @@
 
 #import <UIKit/UIKit.h>
 #import "MKHorizMenu.h"
-@interface RootViewController : UIViewController <MKHorizMenuDataSource, MKHorizMenuDelegate> {
 
-    MKHorizMenu *_horizMenu;
-    NSMutableArray *_items;
-    
-    UILabel *_selectionItemLabel;
-}
+// Vastly altered by Brian Hammond <brian@fictorial.com> Jun 19 2013
+
+@interface RootViewController : UIViewController <MKHorizMenuDelegate>
 
 @property (nonatomic, retain) IBOutlet MKHorizMenu *horizMenu;
-@property (nonatomic, retain) NSMutableArray *items;
 @property (nonatomic, assign) IBOutlet UILabel *selectionItemLabel;
 
 @end

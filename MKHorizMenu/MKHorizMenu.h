@@ -18,45 +18,35 @@
 //	While I'm ok with modifications to this source code, 
 //	if you are re-publishing after editing, please retain the above copyright notices
 
+// Vastly altered by Brian Hammond <brian@fictorial.com> Jun 19 2013
+
 #import <UIKit/UIKit.h>
 
 @class MKHorizMenu;
 
-@protocol MKHorizMenuDataSource <NSObject>
-@optional
-- (UIColor*) labelColorForMenu:(MKHorizMenu*) tabMenu;
-- (UIColor*) labelSelectedColorForMenu:(MKHorizMenu*) tabMenu;
-- (UIColor *)labelHighlightedColorForMenu:(MKHorizMenu *)tabMenu;
-- (UIFont*) labelFontForMenu:(MKHorizMenu*) tabMenu;
-- (int) itemPaddingForMenu:(MKHorizMenu*) tabMenu;
-@required
-- (UIImage*) selectedItemImageForMenu:(MKHorizMenu*) tabView;
-- (UIColor*) backgroundColorForMenu:(MKHorizMenu*) tabView;
-- (int) numberOfItemsForMenu:(MKHorizMenu*) tabView;
-
-- (NSString*) horizMenu:(MKHorizMenu*) horizMenu titleForItemAtIndex:(NSUInteger) index;
-@end
-
 @protocol MKHorizMenuDelegate <NSObject>
-@required
-- (void)horizMenu:(MKHorizMenu*) horizMenu itemSelectedAtIndex:(NSUInteger) index;
+
+- (void)horizMenu:(MKHorizMenu *)horizMenu didSelectItem:(NSString *)item;
+- (void)horizMenu:(MKHorizMenu *)horizMenu didDeselectItem:(NSString *)item;
+- (void)horizMenuDidTrySelectionAtCapacity:(MKHorizMenu *)horizMenu;
+
 @end
 
-@interface MKHorizMenu : UIScrollView {
+@interface MKHorizMenu : UIScrollView
 
-    int _itemCount;
-    UIImage *_selectedImage;
-    NSMutableArray *_titles;
-    id <MKHorizMenuDataSource> dataSource;
-    id <MKHorizMenuDelegate> itemSelectedDelegate;
-}
+@property (copy, nonatomic) NSArray *items;
+@property (copy, nonatomic) NSSet *selectedIndexes;
+@property (strong, nonatomic) UIFont *itemFont;
+@property (assign, nonatomic) NSUInteger itemPadding;
+@property (strong, nonatomic) UIColor *itemTextColor;
+@property (strong, nonatomic) UIColor *selectedItemTextColor;
+@property (strong, nonatomic) UIImage *selectedItemBackgroundImage;
+@property (assign, nonatomic) NSUInteger maximumSelectionCount;
+@property (assign, nonatomic) BOOL canToggleSelections;
+@property (assign, nonatomic) NSUInteger separatorDotSize;
+@property (weak, nonatomic) IBOutlet id<MKHorizMenuDelegate> menuDelegate;
 
-@property (nonatomic, retain) NSMutableArray *titles;
-@property (nonatomic, assign) IBOutlet id <MKHorizMenuDelegate> itemSelectedDelegate;
-@property (nonatomic, retain) IBOutlet id <MKHorizMenuDataSource> dataSource;
-@property (nonatomic, retain) UIImage *selectedImage;
-@property (nonatomic, assign) int itemCount;
+- (void)reloadData;
+- (void)setSelectedIndex:(NSUInteger)selectedIndex animated:(BOOL)animated;
 
--(void) reloadData;
--(void) setSelectedIndex:(int) index animated:(BOOL) animated;
 @end

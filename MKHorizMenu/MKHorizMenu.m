@@ -16,22 +16,26 @@
 //	While I'm ok with modifications to this source code, 
 //	if you are re-publishing after editing, please retain the above copyright notices
 
+// Vastly altered by Brian Hammond <brian@fictorial.com> Jun 19 2013
+
 #import <QuartzCore/QuartzCore.h>
 
 #import "MKHorizMenu.h"
-#define kButtonBaseTag 10000
-#define kLeftOffset 10
+
+enum
+{
+    kButtonBaseTag = 10000,
+    kLeftOffset = 10
+};
 
 @implementation MKHorizMenu
+{
+    NSMutableSet *_selectedIndexes;
+}
 
-@synthesize titles = _titles;
-@synthesize selectedImage = _selectedImage;
+@synthesize selectedIndexes = _selectedIndexes;
 
-@synthesize itemSelectedDelegate;
-@synthesize dataSource;
-@synthesize itemCount = _itemCount;
-
--(void) awakeFromNib
+- (void)awakeFromNib
 {
     self.bounces = YES;
     self.scrollEnabled = YES;
@@ -39,110 +43,170 @@
     self.alwaysBounceVertical = NO;
     self.showsHorizontalScrollIndicator = NO;
     self.showsVerticalScrollIndicator = NO;
+
+    self.itemFont = [UIFont boldSystemFontOfSize:15];
+    self.itemTextColor = [UIColor grayColor];
+    self.selectedItemTextColor = [UIColor whiteColor];
+    self.selectedItemBackgroundImage = nil;
+    self.itemPadding = 20;
+    self.canToggleSelections = YES;
+    self.maximumSelectionCount = 1;
+    self.separatorDotSize = 4;
+
+    _selectedIndexes = [NSMutableSet setWithCapacity:32];
+
     [self reloadData];
 }
-     
--(void) reloadData
+
+- (void)setItems:(NSArray *)theItems
+{
+    _items = [theItems copy];
+    [_selectedIndexes removeAllObjects];
+    [self reloadData];
+}
+
+- (void)setMaximumSelectionCount:(NSUInteger)n
+{
+    NSParameterAssert(n > 0);
+
+    if (n != _maximumSelectionCount) {
+        _maximumSelectionCount = n;
+        [self deselectAll];
+    }
+}
+
+- (void)reloadData
 {
     NSArray *viewsToRemove = [self subviews];
 	for (UIView *v in viewsToRemove) {
 		[v removeFromSuperview];
 	}
     
-    self.itemCount = [dataSource numberOfItemsForMenu:self];
-    self.backgroundColor = [dataSource backgroundColorForMenu:self];
-    self.selectedImage = [dataSource selectedItemImageForMenu:self];
+    NSInteger tag = kButtonBaseTag;
+    CGFloat xPos = kLeftOffset;
 
-    UIFont *buttonFont = [UIFont boldSystemFontOfSize:15];
-    if ([dataSource respondsToSelector:@selector(labelFontForMenu:)])
-        buttonFont = [dataSource labelFontForMenu:self];
-    
-    int buttonPadding = 25;
-    if ([dataSource respondsToSelector:@selector(itemPaddingForMenu:)])
-        buttonPadding = [dataSource itemPaddingForMenu:self];
-
-    int tag = kButtonBaseTag;    
-    int xPos = kLeftOffset;
-
-    for(int i = 0 ; i < self.itemCount; i ++)
-    {
-        NSString *title = [dataSource horizMenu:self titleForItemAtIndex:i];
+    for (NSUInteger i = 0 ; i < _items.count; ++i) {
         UIButton *customButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [customButton setTitle:title forState:UIControlStateNormal];
-        customButton.titleLabel.font = buttonFont;
-        if ([dataSource respondsToSelector:@selector(labelColorForMenu:)])
-            [customButton setTitleColor:[dataSource labelColorForMenu:self] forState:UIControlStateNormal];
-        if ([dataSource respondsToSelector:@selector(labelSelectedColorForMenu:)])
-            [customButton setTitleColor:[dataSource labelSelectedColorForMenu:self] forState:UIControlStateSelected];
-        if ([dataSource respondsToSelector:@selector(labelHighlightedColorForMenu:)])
-            [customButton setTitleColor:[dataSource labelHighlightedColorForMenu:self] forState:UIControlStateHighlighted];
-        
-        [customButton setBackgroundImage:self.selectedImage forState:UIControlStateSelected];
-        
+        [customButton setTitle:_items[i] forState:UIControlStateNormal];
+        customButton.selected = [_selectedIndexes containsObject:@(i)];
+        customButton.titleLabel.font = _itemFont;
+        [customButton setTitleColor:_itemTextColor forState:UIControlStateNormal];
+        [customButton setTitleColor:_selectedItemTextColor forState:UIControlStateHighlighted];
+        [customButton setTitleColor:_selectedItemTextColor forState:UIControlStateSelected];
+        [customButton setBackgroundImage:_selectedItemBackgroundImage forState:UIControlStateSelected];
         customButton.tag = tag++;
+        
         [customButton addTarget:self action:@selector(buttonTapped:) forControlEvents:UIControlEventTouchUpInside];
         
-        int buttonWidth = [title sizeWithFont:customButton.titleLabel.font
-                            constrainedToSize:CGSizeMake(150, 28) 
-                                lineBreakMode:UILineBreakModeClip].width;
+        int buttonWidth = [_items[i]
+                           sizeWithFont:customButton.titleLabel.font
+                           constrainedToSize:CGSizeMake(150, 28)
+                           lineBreakMode:NSLineBreakByTruncatingTail].width;
         
-        customButton.frame = CGRectMake(xPos, 7, buttonWidth + buttonPadding, 28);
-        xPos += buttonWidth;
-        xPos += buttonPadding;
-        [self addSubview:customButton];        
+        customButton.frame = CGRectMake(xPos, 7, buttonWidth + _itemPadding, 28);
 
-        // add separator dots between items.
+        xPos += buttonWidth + _itemPadding;
 
-        int dotRadius = 5;
-        if (i < self.itemCount-1) {
-            UIView *dotView = [[UIView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(customButton.frame)-dotRadius/2, CGRectGetMidY(customButton.frame)-dotRadius/2, dotRadius, dotRadius)];
-            dotView.layer.cornerRadius = dotRadius/2;
-            dotView.backgroundColor = [customButton titleColorForState:UIControlStateNormal];
-            [self addSubview:dotView];
+        [self addSubview:customButton];
+
+        if (_separatorDotSize > 0) {
+            if (i < _items.count-1) {
+                CGRect dotFrame = CGRectMake(CGRectGetMaxX(customButton.frame)-_separatorDotSize/2,
+                                             CGRectGetMidY(customButton.frame)-_separatorDotSize/2,
+                                             _separatorDotSize, _separatorDotSize);
+
+                UIView *dotView = [[UIView alloc] initWithFrame:dotFrame];
+                dotView.layer.cornerRadius = _separatorDotSize/2;
+                dotView.backgroundColor = _itemTextColor;
+                [self addSubview:dotView];
+            }
         }
     }
 
-    // bretdabaker: added right padding to contentSize
     xPos += kLeftOffset;
     
     self.contentSize = CGSizeMake(xPos, 41);
+    
     [self layoutSubviews];
 }
 
-
--(void) setSelectedIndex:(int) index animated:(BOOL) animated
+- (void)deselectAll
 {
-    UIButton *thisButton = (UIButton*) [self viewWithTag:index + kButtonBaseTag];    
-    thisButton.selected = YES;
-    [self setContentOffset:CGPointMake(thisButton.frame.origin.x - kLeftOffset, 0) animated:animated];
-    [self.itemSelectedDelegate horizMenu:self itemSelectedAtIndex:index];
-}
+    [_selectedIndexes removeAllObjects];
 
--(void) buttonTapped:(id) sender
-{
-    UIButton *button = (UIButton*) sender;
-    
-    for(int i = 0; i < self.itemCount; i++)
-    {
-        UIButton *thisButton = (UIButton*) [self viewWithTag:i + kButtonBaseTag];
-        if(i + kButtonBaseTag == button.tag)
-            thisButton.selected = YES;
-        else
-            thisButton.selected = NO;
+    for (NSNumber *index in _selectedIndexes) {
+        UIButton *thisButton = (UIButton *)[self viewWithTag:index.integerValue + kButtonBaseTag];
+        thisButton.selected = NO;
+
+        [_menuDelegate horizMenu:self didDeselectItem:_items[index.integerValue]];
     }
-    
-    [self.itemSelectedDelegate horizMenu:self itemSelectedAtIndex:button.tag - kButtonBaseTag];
 }
 
-
-- (void)dealloc
+- (void)setSelectedIndex:(NSUInteger)selectedIndex animated:(BOOL)animated
 {
-    [_selectedImage release];
-    _selectedImage = nil;
-    [_titles release];
-    _titles = nil;
-    
-    [super dealloc];
+    [self deselectAll];
+
+    self.selectedIndexes = [NSMutableSet setWithObject:@(selectedIndex)];
+
+    UIButton *thisButton = (UIButton *)[self viewWithTag:selectedIndex + kButtonBaseTag];
+    thisButton.selected = YES;
+
+    [self setContentOffset:CGPointMake(thisButton.frame.origin.x - kLeftOffset, 0)
+                  animated:animated];
+}
+
+- (void)setSelectedIndexes:(NSSet *)theSelectedIndexes
+{
+    [self deselectAll];
+
+    _selectedIndexes = [theSelectedIndexes mutableCopy];
+
+    if (_selectedIndexes.count > 0) {
+        [self reloadData];
+
+        for (NSNumber *index in _selectedIndexes) {
+            UIButton *thisButton = (UIButton *)[self viewWithTag:index.integerValue + kButtonBaseTag];
+            thisButton.selected = YES;
+
+            [_menuDelegate horizMenu:self didSelectItem:_items[index.integerValue]];
+        }
+    }
+}
+
+- (void)buttonTapped:(UIButton *)button
+{
+    for (NSUInteger i = 0; i < _items.count; ++i) {
+        UIButton *thisButton = (UIButton *)[self viewWithTag:i + kButtonBaseTag];
+
+        if (i + kButtonBaseTag == button.tag) {
+            if (thisButton.selected) {
+                if (_canToggleSelections) {
+                    thisButton.selected = NO;
+
+                    [_selectedIndexes removeObject:@(i)];
+
+                    [_menuDelegate horizMenu:self didDeselectItem:_items[i]];
+                }
+            } else if (![_selectedIndexes containsObject:@(i)]) {
+                if (_selectedIndexes.count < _maximumSelectionCount) {
+                    thisButton.selected = YES;
+
+                    [_selectedIndexes addObject:@(i)];
+
+                    [_menuDelegate horizMenu:self didSelectItem:_items[i]];
+                } else {
+                    [_menuDelegate horizMenuDidTrySelectionAtCapacity:self];
+                }
+            }
+        } else if (button != thisButton && !_maximumSelectionCount) {
+            if (thisButton.selected) {
+                thisButton.selected = NO;
+                [_menuDelegate horizMenu:self didSelectItem:_items[i]];
+            }
+        }
+    }
+
+    NSLog(@"selected items: %@", _selectedIndexes);
 }
 
 @end

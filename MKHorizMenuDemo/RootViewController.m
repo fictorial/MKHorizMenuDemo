@@ -8,98 +8,48 @@
 
 #import "RootViewController.h"
 
+// Vastly altered by Brian Hammond <brian@fictorial.com> Jun 19 2013
+
 @implementation RootViewController
-
-@synthesize horizMenu = _horizMenu;
-@synthesize items = _items;
-@synthesize selectionItemLabel = _selectionItemLabel;
-
 
 - (void)viewDidLoad
 {
-    self.items = [NSArray arrayWithObjects:@"Headlines", @"UK", @"International", @"Politics", @"Weather", @"Travel", @"Radio", @"Hollywood", @"Sports", @"Others", nil];    
-    [self.horizMenu reloadData];
+    _horizMenu.items = @[ @"Headlines", @"UK", @"International", @"Politics", @"Weather",
+                          @"Travel", @"Radio", @"Hollywood", @"Sports", @"Others" ];
+
+    _horizMenu.maximumSelectionCount = 3;
+    _horizMenu.itemTextColor = [UIColor colorWithRed:0.482 green:0.715 blue:0.788 alpha:1.000];
+    _horizMenu.selectedItemTextColor = [UIColor colorWithRed:0.271 green:0.589 blue:0.292 alpha:1.000];
+    _horizMenu.backgroundColor = [UIColor colorWithRed:0.742 green:0.880 blue:0.923 alpha:1.000];
+
     [super viewDidLoad];
 }
 
-- (void)didReceiveMemoryWarning
-{
-    // Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
-    
-    // Relinquish ownership any cached data, images, etc that aren't in use.
-}
-
-- (void)viewDidUnload
-{
-    [super viewDidUnload];
-
-    // Relinquish ownership of anything that can be recreated in viewDidLoad or on demand.
-    // For example: self.myOutlet = nil;
-    self.selectionItemLabel = nil;
-}
-
--(void) viewDidAppear:(BOOL)animated
+- (void)viewDidAppear:(BOOL)animated
 {
     [self.horizMenu setSelectedIndex:5 animated:YES];
 }
 
-- (void)dealloc
+#pragma mark - MKHorizMenuDelegate
+
+- (void)horizMenu:(MKHorizMenu *)horizMenu didSelectItem:(NSString *)item
 {
-    [super dealloc];
+    NSLog(@"Selected: %@", item);
 }
 
-#pragma mark -
-#pragma mark HorizMenu Data Source
-- (UIImage*) selectedItemImageForMenu:(MKHorizMenu*) tabMenu
+- (void)horizMenu:(MKHorizMenu *)horizMenu didDeselectItem:(NSString *)item
 {
-    return nil;
+    NSLog(@"Deselected: %@", item);
 }
 
-- (UIColor*) labelColorForMenu:(MKHorizMenu*) tabMenu
+- (void)horizMenuDidTrySelectionAtCapacity:(MKHorizMenu *)horizMenu
 {
-    return [UIColor colorWithWhite:0.70f alpha:1.0f];
+    [[[UIAlertView alloc]
+      initWithTitle:@"Oops!"
+      message:@"You may select up to 3 items. Tap a selected item to deselect it."
+      delegate:nil
+      cancelButtonTitle:@"OK"
+      otherButtonTitles:nil] show];
 }
 
-- (UIColor*) labelSelectedColorForMenu:(MKHorizMenu*) tabMenu
-{
-    return [UIColor whiteColor];
-}
-
-- (UIColor *)labelHighlightedColorForMenu:(MKHorizMenu *)tabMenu
-{
-    return [UIColor grayColor];
-}
-
-- (UIFont*) labelFontForMenu:(MKHorizMenu*) tabMenu
-{
-    return [UIFont fontWithName:@"HelveticaNeue-Light" size:20];
-}
-
-- (int) itemPaddingForMenu:(MKHorizMenu*) tabMenu
-{
-    return 22;
-}
-
-- (UIColor*) backgroundColorForMenu:(MKHorizMenu *)tabView
-{
-    return nil;
-}
-
-- (int) numberOfItemsForMenu:(MKHorizMenu *)tabView
-{
-    return [self.items count];
-}
-
-- (NSString*) horizMenu:(MKHorizMenu *)horizMenu titleForItemAtIndex:(NSUInteger)index
-{
-    return [self.items objectAtIndex:index];
-}
-
-#pragma mark -
-#pragma mark HorizMenu Delegate
--(void) horizMenu:(MKHorizMenu *)horizMenu itemSelectedAtIndex:(NSUInteger)index
-{        
-    self.selectionItemLabel.text = [self.items objectAtIndex:index];
-}
 @end
