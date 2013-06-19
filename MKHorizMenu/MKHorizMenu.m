@@ -16,6 +16,8 @@
 //	While I'm ok with modifications to this source code, 
 //	if you are re-publishing after editing, please retain the above copyright notices
 
+#import <QuartzCore/QuartzCore.h>
+
 #import "MKHorizMenu.h"
 #define kButtonBaseTag 10000
 #define kLeftOffset 10
@@ -88,13 +90,23 @@
         xPos += buttonWidth;
         xPos += buttonPadding;
         [self addSubview:customButton];        
+
+        // add separator dots between items.
+
+        int dotRadius = 5;
+        if (i < self.itemCount-1) {
+            UIView *dotView = [[UIView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(customButton.frame)-dotRadius/2, CGRectGetMidY(customButton.frame)-dotRadius/2, dotRadius, dotRadius)];
+            dotView.layer.cornerRadius = dotRadius/2;
+            dotView.backgroundColor = [customButton titleColorForState:UIControlStateNormal];
+            [self addSubview:dotView];
+        }
     }
-    
+
     // bretdabaker: added right padding to contentSize
     xPos += kLeftOffset;
     
-    self.contentSize = CGSizeMake(xPos, 41);    
-    [self layoutSubviews];  
+    self.contentSize = CGSizeMake(xPos, 41);
+    [self layoutSubviews];
 }
 
 

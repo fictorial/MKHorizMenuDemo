@@ -53,7 +53,7 @@
 #pragma mark HorizMenu Data Source
 - (UIImage*) selectedItemImageForMenu:(MKHorizMenu*) tabMenu
 {
-    return [[UIImage imageNamed:@"ButtonSelected"] stretchableImageWithLeftCapWidth:16 topCapHeight:0];
+    return nil;
 }
 
 - (UIColor*) labelColorForMenu:(MKHorizMenu*) tabMenu
@@ -73,7 +73,7 @@
 
 - (UIFont*) labelFontForMenu:(MKHorizMenu*) tabMenu
 {
-    return [UIFont boldSystemFontOfSize:15];
+    return [UIFont fontWithName:@"HelveticaNeue-Light" size:20];
 }
 
 - (int) itemPaddingForMenu:(MKHorizMenu*) tabMenu
@@ -83,7 +83,7 @@
 
 - (UIColor*) backgroundColorForMenu:(MKHorizMenu *)tabView
 {
-    return [UIColor colorWithPatternImage:[UIImage imageNamed:@"MenuBar"]];
+    return nil;
 }
 
 - (int) numberOfItemsForMenu:(MKHorizMenu *)tabView
