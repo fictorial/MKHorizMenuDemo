@@ -1,1 +1,1 @@
-Instructions on how to use is on my blog, <a href="http://mk.sg/8h"> here</a>
+![](https://github.com/fictorial/MKHorizMenuDemo/raw/master/screenshot.png)
